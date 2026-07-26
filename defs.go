@@ -104,7 +104,7 @@ const (
 	FindAll   = false
 )
 
-type numberAttr interface {
+type NumberAttr interface {
 	int | int32 | int64 | float32 | float64
 }
 

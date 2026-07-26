@@ -41,14 +41,14 @@ func NewFromFile(filename string) (*SVG, error) {
 
 // NewRect returns a RectDef object with the supplied parameters. x, y, width,
 // and height can all be string, int, or float.
-func NewRect[N string | numberAttr](id, style string, x, y, width, height N) RectDef {
+func NewRect[N string | NumberAttr](id, style string, x, y, width, height N) RectDef {
 	newRect := RectDef{
 		Id:     id,
 		Style:  style,
-		X:      anyNumberToString(x),
-		Y:      anyNumberToString(y),
-		Width:  anyNumberToString(width),
-		Height: anyNumberToString(height),
+		X:      anyNumberToString(x, 6),
+		Y:      anyNumberToString(y, 6),
+		Width:  anyNumberToString(width, 6),
+		Height: anyNumberToString(height, 6),
 	}
 	return newRect
 }

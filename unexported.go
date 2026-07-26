@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	re "regexp"
+	"strconv"
+	s "strings"
 )
 
 func traverseObjectById(elem any, elemType string, id any, findFirst bool) ([]any, error) {
@@ -116,15 +118,33 @@ func traverseObjectById(elem any, elemType string, id any, findFirst bool) ([]an
 	return results, err
 }
 
-func anyNumberToString[N string | numberAttr](num N) string {
+func anyNumberToString[N string | NumberAttr](num N, floatPrecision int) string {
+	floatBits := 64
+	if floatPrecision < 0 {
+		floatPrecision = 0
+	}
 	numType := reflect.TypeOf(num)
 	switch numType.String() {
 	case "string":
-		return reflect.ValueOf(num).String()
-	case "float32", "float64":
-		return fmt.Sprintf("%.6f", reflect.ValueOf(num).Float())
+		numStr := reflect.ValueOf(num).String()
+		if floatPrecision == 0 && s.Index(numStr, ".") < 0 {
+			return numStr
+		}
+		strFloatVal, err := strconv.ParseFloat(numStr, 64)
+		if err == nil {
+			return strconv.FormatFloat(strFloatVal, 'f', floatPrecision, floatBits)
+		}
+	case "float32":
+		floatBits = 32
+		fallthrough
+	case "float64":
+		return strconv.FormatFloat(reflect.ValueOf(num).Float(), 'f', floatPrecision, floatBits)
 	case "int", "int32", "int64":
-		return fmt.Sprintf("%d", reflect.ValueOf(num).Int())
+		if floatPrecision == 0 {
+			return strconv.FormatInt(reflect.ValueOf(num).Int(), 10)
+		} else {
+			return strconv.FormatFloat(float64(reflect.ValueOf(num).Int()), 'f', floatPrecision, floatBits)
+		}
 	}
 	return ""
 }
