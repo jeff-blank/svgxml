@@ -70,17 +70,14 @@ type TSpanDef struct {
 }
 
 type TextDef struct {
-	//	svgElem
-	Id     string     `xml:"id,attr"`
-	X      string     `xml:"x,attr"`
-	Y      string     `xml:"y,attr"`
-	Width  string     `xml:"width,attr,omitempty"`
-	Height string     `xml:"height,attr,omitempty"`
-	Style  string     `xml:"style,attr,omitempty"`
-	Xform  string     `xml:"transform,attr,omitempty"`
-	TextLength  string     `xml:",attr,omitempty"`
-	Label  string     `xml:",chardata"`
-	TSpan  []TSpanDef `xml:"tspan"`
+	Id         string     `xml:"id,attr"`
+	X          string     `xml:"x,attr"`
+	Y          string     `xml:"y,attr"`
+	Style      string     `xml:"style,attr,omitempty"`
+	Xform      string     `xml:"transform,attr,omitempty"`
+	TextLength string     `xml:",attr,omitempty"`
+	Label      string     `xml:",chardata"`
+	TSpan      []TSpanDef `xml:"tspan"`
 }
 
 type RectDef struct {
