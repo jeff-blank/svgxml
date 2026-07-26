@@ -4,6 +4,10 @@ import (
 	"encoding/xml"
 )
 
+// SVG is the base struct of an SVG image. The array fields of
+// the struct are the supported tags and will be rendered in
+// first-to-last order (e. g., any circle defined in SVG.Circle
+// will visually cover any other overlapping elements).
 type SVG struct {
 	Id      string      `xml:"id,attr"`
 	Width   string      `xml:"width,attr"`
@@ -14,8 +18,8 @@ type SVG struct {
 	XMLNS   string      `xml:"xmlns,attr"`
 	XMLName xml.Name    `xml:"svg"`
 	Defs    DefsDef     `xml:"defs"`
-	A       []AnchorDef `xml:"a"`
 	G       []GroupDef  `xml:"g"`
+	A       []AnchorDef `xml:"a"`
 	Path    []PathDef   `xml:"path"`
 	Text    []TextDef   `xml:"text"`
 	Rect    []RectDef   `xml:"rect"`
