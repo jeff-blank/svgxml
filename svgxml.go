@@ -11,7 +11,7 @@ import (
 	s "strings"
 )
 
-// NewFromBytes() accepts a byte slice of SVG XML data and returns an SVG
+// NewFromBytes accepts a byte slice of SVG XML data and returns an SVG
 // object pointer or an error.
 func NewFromBytes(xmlBytes []byte) (*SVG, error) {
 	var svgData SVG
@@ -22,10 +22,10 @@ func NewFromBytes(xmlBytes []byte) (*SVG, error) {
 	return &svgData, nil
 }
 
-// NewFromFile() accepts a filename containing SVG XML data and returns an
+// NewFromFile accepts a filename containing SVG XML data and returns an
 // object pointer or an error.
 //
-// This method calls NewFromBytes() after successfully reading from the file
+// This method calls [NewFromBytes] after successfully reading from the file
 // named in the filename parameter.
 func NewFromFile(filename string) (*SVG, error) {
 	xmlBytes, err := os.ReadFile(filename)
@@ -39,7 +39,7 @@ func NewFromFile(filename string) (*SVG, error) {
 	return svgData, err
 }
 
-// NewRect returns a RectDef object with the supplied parameters. x, y, width,
+// NewRect returns a [RectDef] object with the supplied parameters. x, y, width,
 // and height can all be string, int, or float.
 func NewRect[N string | NumberAttr](id, style string, x, y, width, height N) RectDef {
 	newRect := RectDef{
@@ -53,7 +53,7 @@ func NewRect[N string | NumberAttr](id, style string, x, y, width, height N) Rec
 	return newRect
 }
 
-// GetXml() returns the current object as a byte slice.
+// GetXml returns the current object as a byte slice.
 func (S *SVG) GetXml() ([]byte, error) {
 	xmlBytes, err := xml.Marshal(S)
 	if err != nil {
@@ -62,10 +62,10 @@ func (S *SVG) GetXml() ([]byte, error) {
 	return append([]byte(`<?xml version="1.0" encoding="UTF-8"?>`+"\n"), xmlBytes...), nil
 }
 
-// GetXml() returns the current object as a byte slice, using xml.MarshalIndent().
+// GetXmlIndented returns the current object as a byte slice, using [xml.MarshalIndent].
 //
 // The indentPrefix and indentString parameters are passed directly to
-// xml.MarshalIndent().
+// [xml.MarshalIndent].
 func (S *SVG) GetXmlIndented(indentPrefix, indentString string) ([]byte, error) {
 	xmlBytes, err := xml.MarshalIndent(S, indentPrefix, indentString)
 	if err != nil {
@@ -77,7 +77,7 @@ func (S *SVG) GetXmlIndented(indentPrefix, indentString string) ([]byte, error) 
 // WriteFile writes an XML representation of the current object to the
 // supplied filename.
 //
-// The method calls the GetXml() method and writes the XML data to disk rather
+// The method calls the [SVG.GetXml] method and writes the XML data to disk rather
 // than returning a byte slice to the caller.
 func (S *SVG) WriteFile(filename string) error {
 
@@ -108,13 +108,13 @@ func (S *SVG) WriteFile(filename string) error {
 	return err
 }
 
-// FindPathsById traverses an SVG object and returns a slice of PathDef
+// FindPathsById traverses an [SVG] object and returns a slice of [PathDef]
 // with matching ids.
 //
 // The supplied id may be a string or a compiled regular expression from
-// the regexp package.
+// the [regexp] package.
 //
-// Use the FindFirst and FindAll constants as the second parameter to direct
+// Use the [FindFirst] or [FindAll] constant as the second parameter to direct
 // cause the method to return only the first matching element or all matching
 // elements, respectively.
 func (S *SVG) FindPathsById(id any, findFirst bool) ([]*PathDef, error) {
@@ -129,13 +129,13 @@ func (S *SVG) FindPathsById(id any, findFirst bool) ([]*PathDef, error) {
 	return results, err
 }
 
-// FindGroupsById traverses a GroupDef object and returns a slice of PathDef
-// with matching ids.
+// FindGroupsById traverses a [GroupDef] object and returns a slice of
+// [PathDef] with matching ids.
 //
 // The supplied id may be a string or a compiled regular expression from
-// the regexp package.
+// the [regexp] package.
 //
-// Use the FindFirst and FindAll constants as the second parameter to direct
+// Use the [FindFirst] or [FindAll] constant as the second parameter to direct
 // cause the method to return only the first matching element or all matching
 // elements, respectively.
 func (G *GroupDef) FindPathsById(id any, findFirst bool) ([]*PathDef, error) {
@@ -150,13 +150,13 @@ func (G *GroupDef) FindPathsById(id any, findFirst bool) ([]*PathDef, error) {
 	return results, err
 }
 
-// FindGroupsById traverses a GroupDef object and returns a slice of GroupDef
-// with matching ids.
+// FindGroupsById traverses a [GroupDef] object and returns a slice of
+// [GroupDef] with matching ids.
 //
 // The supplied id may be a string or a compiled regular expression from
-// the regexp package.
+// the [regexp] package.
 //
-// Use the FindFirst and FindAll constants as the second parameter to direct
+// Use the [FindFirst] or [FindAll] constant as the second parameter to direct
 // cause the method to return only the first matching element or all matching
 // elements, respectively.
 func (S *SVG) FindGroupsById(id any, findFirst bool) ([]*GroupDef, error) {
@@ -171,12 +171,12 @@ func (S *SVG) FindGroupsById(id any, findFirst bool) ([]*GroupDef, error) {
 	return results, err
 }
 
-// AddBackground() takes a color definition, such as #<hex> or a name like
+// AddBackground takes a color definition, such as "#<hex>" or a name like
 // "red", and creates a group containing a rect matching the image size and
 // specified color.
 //
 // The new group is prepended to the top-level G slice to ensure that it is
-// the bottom-most element in the image.
+// the bottom-most visual element in the image.
 func (S *SVG) AddBackground(colorDef string) {
 	rect := RectDef{
 		Id:     "backgroundColor",
@@ -190,6 +190,8 @@ func (S *SVG) AddBackground(colorDef string) {
 	S.G = append([]GroupDef{g}, S.G...)
 }
 
+// GetViewBox returns the value of the "viewBox" XML attribute as a
+// [ViewBoxDef] struct of float64 values.
 func (S *SVG) GetViewBox() (ViewBoxDef, error) {
 	var result [4]float64
 
@@ -210,6 +212,8 @@ func (S *SVG) GetViewBox() (ViewBoxDef, error) {
 	return ViewBoxDef{X: result[0], Y: result[1], Width: result[2], Height: result[3]}, nil
 }
 
+// GetViewBox sets the image's "viewBox" XML attribute from the values in the
+// supplied [ViewBoxDef] struct.
 func (S *SVG) SetViewBox(box ViewBoxDef) {
 	S.ViewBox = fmt.Sprintf("%.6f %.6f %.6f %.6f", box.X, box.Y, box.Width, box.Height)
 }

@@ -6,8 +6,8 @@ import (
 
 // SVG is the base struct of an SVG image. The array fields of
 // the struct are the supported tags and will be rendered in
-// first-to-last order (e. g., any circle defined in SVG.Circle
-// will visually cover any other overlapping elements).
+// first-to-last order (e. g., any circle defined in [SVG.Circle]
+// will visually cover any other elements within its bounds).
 type SVG struct {
 	Id      string      `xml:"id,attr"`
 	Width   string      `xml:"width,attr"`
@@ -26,6 +26,7 @@ type SVG struct {
 	Circle  []CircleDef `xml:"circle"`
 }
 
+// <path> SVG/XML element
 type PathDef struct {
 	Id    string `xml:"id,attr"`
 	D     string `xml:"d,attr"`
@@ -34,6 +35,7 @@ type PathDef struct {
 	Title string `xml:"title,omitempty"`
 }
 
+// <g> SVG/XML element
 type GroupDef struct {
 	G      []GroupDef  `xml:"g,omitempty"`
 	Id     string      `xml:"id,attr,omitempty"`
@@ -46,6 +48,7 @@ type GroupDef struct {
 	Circle []CircleDef `xml:"circle"`
 }
 
+// <a> SVG/XML element
 type AnchorDef struct {
 	Id             string      `xml:"id,attr"`
 	Download       string      `xml:"Download,attr"`
@@ -61,10 +64,12 @@ type AnchorDef struct {
 	Circle         []CircleDef `xml:"circle"`
 }
 
+// <defs> SVG/XML element
 type DefsDef struct {
 	Id string `xml:"id,attr"`
 }
 
+// <tspan> SVG/XML element
 type TSpanDef struct {
 	Id    string `xml:"id,attr"`
 	X     string `xml:"x,attr"`
@@ -73,6 +78,7 @@ type TSpanDef struct {
 	Label string `xml:",chardata"`
 }
 
+// <text> SVG/XML element
 type TextDef struct {
 	Id         string     `xml:"id,attr"`
 	X          string     `xml:"x,attr"`
@@ -84,6 +90,7 @@ type TextDef struct {
 	TSpan      []TSpanDef `xml:"tspan"`
 }
 
+// <rect> SVG/XML element
 type RectDef struct {
 	Id     string `xml:"id,attr"`
 	X      string `xml:"x,attr"`
@@ -94,6 +101,7 @@ type RectDef struct {
 	Xform  string `xml:"transform,attr,omitempty"`
 }
 
+// <circle> SVG/XML element
 type CircleDef struct {
 	Id     string `xml:"id,attr"`
 	CX     string `xml:"cx,attr"`
@@ -103,6 +111,14 @@ type CircleDef struct {
 	Xform  string `xml:"transform,attr,omitempty"`
 }
 
+// "viewBox" attribute of some elements
+type ViewBoxDef struct {
+	X      float64
+	Y      float64
+	Width  float64
+	Height float64
+}
+
 const (
 	FindFirst = true
 	FindAll   = false
@@ -110,8 +126,4 @@ const (
 
 type NumberAttr interface {
 	int | int32 | int64 | float32 | float64
-}
-
-type ViewBoxDef struct {
-	X, Y, Width, Height float64
 }
