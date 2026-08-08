@@ -1,12 +1,9 @@
 package svgxml
 
 import (
-	"crypto/rand"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 	s "strings"
 )
@@ -84,35 +81,43 @@ func (S *SVG) GetXmlIndented(indentPrefix, indentString string) ([]byte, error) 
 // WriteFile writes an XML representation of the current object to the
 // supplied filename.
 //
-// The method calls the [SVG.GetXml] method and writes the XML data to disk rather
-// than returning a byte slice to the caller.
+// The method calls the [SVG.GetXml] method and writes the XML data to disk
+// rather than returning a byte slice to the caller. The data is first written
+// to a temporary file; if that succeeds, the file with the specified filename
+// is unlinked and the temporary file renamed.
 func (S *SVG) WriteFile(filename string) error {
 
 	xmlBytes, err := S.GetXml()
 	if err != nil {
-		return fmt.Errorf("WriteFile(): convert to XML: %w", err)
+		return fmt.Errorf("WriteFile(): generate XML: %w", err)
 	}
 
-	tmpFileExt := rand.Text()
-	outFile := filepath.Clean(filename)
-	tmpFilename := outFile + "." + string(tmpFileExt)
+	if err = doWriteFile(xmlBytes, filename); err != nil {
+		return fmt.Errorf("WriteFile(): %w", err)
+	}
 
-	err = os.WriteFile(tmpFilename, xmlBytes, 0666)
+	return nil
+}
+
+// WriteFileIndented writes an XML representation of the current object to the
+// supplied filename.
+//
+// The method calls the [SVG.GetXmlIndented] method and writes the XML data to disk
+// rather than returning a byte slice to the caller. The data is first written
+// to a temporary file; if that succeeds, the file with the specified filename
+// is unlinked and the temporary file renamed.
+func (S *SVG) WriteFileIndented(filename, indentPrefix, indentString string) error {
+
+	xmlBytes, err := S.GetXmlIndented(indentPrefix, indentString)
 	if err != nil {
-		return fmt.Errorf("WriteFile(): write: %w (file may need to be removed)", err.(*os.PathError))
+		return fmt.Errorf("WriteFileIndented(): generate XML: %w", err)
 	}
-	err = os.Remove(outFile)
-	if err == nil || errors.Is(err, os.ErrNotExist) {
-		//err = nil
-		err = os.Link(tmpFilename, outFile)
-		if err == nil {
-			err = os.Remove(tmpFilename)
-		}
+
+	if err = doWriteFile(xmlBytes, filename); err != nil {
+		return fmt.Errorf("WriteFileIndented(): %w", err)
 	}
-	if err != nil {
-		err = fmt.Errorf("WriteFile(): rename temp file: %w (temp file may beed to be removed)", err.(*os.PathError))
-	}
-	return err
+
+	return nil
 }
 
 // FindPathsById traverses an [SVG] object and returns a slice of [PathDef]
@@ -187,14 +192,24 @@ func (S *SVG) AddBackground(colorDef string) error {
 	if err != nil {
 		return fmt.Errorf("AddBackground(): get viewBox: %w", err)
 	} else if viewBox == (ViewBoxDef{}) {
-		bgRect = NewRect("backgroundColor", "fill:"+colorDef, "0", "0", S.Width, S.Height)
+		bgRect = NewRect("svgxml_backgroundColor", "fill:"+colorDef, "0", "0", S.Width, S.Height)
 	} else {
-		bgRect = NewRect("backgroundColor", "fill:"+colorDef, viewBox.X, viewBox.Y, viewBox.Width, viewBox.Height)
+		bgRect = NewRect("svgxml_backgroundColor", "fill:"+colorDef, viewBox.X, viewBox.Y, viewBox.Width, viewBox.Height)
 	}
-	//g := GroupDef{Rect: []RectDef{rect}}
-	//S.G = append([]GroupDef{g}, S.G...)
 	S.background = bgRect
 	return nil
+}
+
+// RemoveBackground clears any rect added by [SVG.AddBackground]
+func (S *SVG) RemoveBackground() {
+	S.background = RectDef{}
+}
+
+// GetBackground returns the [RectDef] created with [SVG.AddBackground]. If no
+// background has been defined, the return value will be a [RectDef] with all
+// zero values.
+func (S *SVG) GetBackground() RectDef {
+	return S.background
 }
 
 // GetViewBox returns the value of the "viewBox" XML attribute as a

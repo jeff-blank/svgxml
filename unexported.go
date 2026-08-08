@@ -1,7 +1,11 @@
 package svgxml
 
 import (
+	"crypto/rand"
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"reflect"
 	re "regexp"
 	"strconv"
@@ -157,4 +161,26 @@ func placeBackgroundRect(svg_in *SVG) *SVG {
 	g := GroupDef{Rect: []RectDef{newS.background}}
 	newS.G = append([]GroupDef{g}, newS.G...)
 	return &newS
+}
+
+func doWriteFile(content []byte, filename string) error {
+	tmpFileExt := rand.Text()
+	outFile := filepath.Clean(filename)
+	tmpFilename := outFile + "." + string(tmpFileExt)
+
+	err := os.WriteFile(tmpFilename, content, 0666)
+	if err != nil {
+		return fmt.Errorf("write: %w (file may need to be removed)", err.(*os.PathError))
+	}
+	err = os.Remove(outFile)
+	if err == nil || errors.Is(err, os.ErrNotExist) {
+		err = os.Link(tmpFilename, outFile)
+		if err == nil {
+			err = os.Remove(tmpFilename)
+		}
+	}
+	if err != nil {
+		err = fmt.Errorf("rename temp file: %w (temp file may beed to be removed)", err.(*os.PathError))
+	}
+	return err
 }
