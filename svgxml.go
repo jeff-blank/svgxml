@@ -195,7 +195,13 @@ func (S *SVG) AddBackground(colorDef string) {
 func (S *SVG) GetViewBox() (ViewBoxDef, error) {
 	var result [4]float64
 
+	if S.ViewBox == "" {
+		return ViewBoxDef{}, nil
+	}
 	corners := s.Split(s.ReplaceAll(S.ViewBox, ",", " "), " ")
+	if len(corners) != 4 {
+		return ViewBoxDef{}, fmt.Errorf("invalid viewBox value '%s'", S.ViewBox)
+	}
 	rInd := 0
 	for _, c := range corners {
 		if len(c) == 0 {
@@ -203,7 +209,7 @@ func (S *SVG) GetViewBox() (ViewBoxDef, error) {
 		}
 		val, err := strconv.ParseFloat(c, 64)
 		if err != nil {
-			return ViewBoxDef{}, fmt.Errorf("SVG.GetViewBox(): parse '%s' as float64: %w", c, err)
+			return ViewBoxDef{}, fmt.Errorf("parse viewBox component '%s' as float64: %w", c, err)
 		}
 		result[rInd] = val
 		rInd++
