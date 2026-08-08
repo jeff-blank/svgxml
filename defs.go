@@ -4,26 +4,28 @@ import (
 	"encoding/xml"
 )
 
-// SVG is the base struct of an SVG image. The array fields of
-// the struct are the supported tags and will be rendered in
-// first-to-last order (e. g., any circle defined in [SVG.Circle]
-// will visually cover any other elements within its bounds).
+// SVG is the base struct of an SVG image, corresponding to the <svg>...</svg>
+// tag pair and its attributes and contents. The array fields of the struct are
+// the supported tags and will be rendered in first-to-last order (e. g., any
+// circle defined in [SVG.Circle] will visually cover any other elements within
+// its bounds).
 type SVG struct {
-	Id      string      `xml:"id,attr"`
-	Width   string      `xml:"width,attr"`
-	Height  string      `xml:"height,attr"`
-	ViewBox string      `xml:"viewBox,attr"`
-	Title   string      `xml:"title,attr,omitempty"`
-	Version string      `xml:"version,attr"`
-	XMLNS   string      `xml:"xmlns,attr"`
-	XMLName xml.Name    `xml:"svg"`
-	Defs    DefsDef     `xml:"defs"`
-	G       []GroupDef  `xml:"g"`
-	A       []AnchorDef `xml:"a"`
-	Path    []PathDef   `xml:"path"`
-	Text    []TextDef   `xml:"text"`
-	Rect    []RectDef   `xml:"rect"`
-	Circle  []CircleDef `xml:"circle"`
+	Id         string      `xml:"id,attr"`
+	Width      string      `xml:"width,attr"`
+	Height     string      `xml:"height,attr"`
+	ViewBox    string      `xml:"viewBox,attr,omitempty"`
+	Title      string      `xml:"title,attr,omitempty"`
+	Version    string      `xml:"version,attr"`
+	XMLNS      string      `xml:"xmlns,attr"`
+	XMLName    xml.Name    `xml:"svg"`
+	Defs       DefsDef     `xml:"defs"`
+	G          []GroupDef  `xml:"g"`
+	A          []AnchorDef `xml:"a"`
+	Path       []PathDef   `xml:"path"`
+	Text       []TextDef   `xml:"text"`
+	Rect       []RectDef   `xml:"rect"`
+	Circle     []CircleDef `xml:"circle"`
+	background RectDef
 }
 
 // <path> SVG/XML element
@@ -119,11 +121,12 @@ type ViewBoxDef struct {
 	Height float64
 }
 
+// Type constraint for functions
+type NumberAttr interface {
+	int | int32 | int64 | float32 | float64 | string
+}
+
 const (
 	FindFirst = true
 	FindAll   = false
 )
-
-type NumberAttr interface {
-	int | int32 | int64 | float32 | float64
-}

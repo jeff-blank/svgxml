@@ -40,8 +40,9 @@ func NewFromFile(filename string) (*SVG, error) {
 }
 
 // NewRect returns a [RectDef] object with the supplied parameters. x, y, width,
-// and height can all be string, int, or float.
-func NewRect[N string | NumberAttr](id, style string, x, y, width, height N) RectDef {
+// and height can be all strings or a mix of int or float types (but not a mix
+// of strings and ints/floats).
+func NewRect[N NumberAttr](id, style string, x, y, width, height N) RectDef {
 	newRect := RectDef{
 		Id:     id,
 		Style:  style,
@@ -53,21 +54,27 @@ func NewRect[N string | NumberAttr](id, style string, x, y, width, height N) Rec
 	return newRect
 }
 
-// GetXml returns the current object as a byte slice.
+// GetXml returns the current object as an XML byte slice. If a background
+// has been defined with [SVG.AddBackground], it is inserted into a copy of S
+// as the bottom-most visual element, and the copy is marshaled to XML;
+// otherwise S is marshaled as-is.
 func (S *SVG) GetXml() ([]byte, error) {
-	xmlBytes, err := xml.Marshal(S)
+	xmlBytes, err := xml.Marshal(placeBackgroundRect(S))
 	if err != nil {
 		return nil, fmt.Errorf("GetXml(): marshal: %w", err)
 	}
 	return append([]byte(`<?xml version="1.0" encoding="UTF-8"?>`+"\n"), xmlBytes...), nil
 }
 
-// GetXmlIndented returns the current object as a byte slice, using [xml.MarshalIndent].
+// GetXmlIndented returns the current object as an XML byte slice. If a background
+// has been defined with [SVG.AddBackground], it is inserted into a copy of S
+// as the bottom-most visual element, and the copy is marshaled to XML;
+// otherwise S is marshaled as-is.
 //
 // The indentPrefix and indentString parameters are passed directly to
 // [xml.MarshalIndent].
 func (S *SVG) GetXmlIndented(indentPrefix, indentString string) ([]byte, error) {
-	xmlBytes, err := xml.MarshalIndent(S, indentPrefix, indentString)
+	xmlBytes, err := xml.MarshalIndent(placeBackgroundRect(S), indentPrefix, indentString)
 	if err != nil {
 		return nil, fmt.Errorf("GetXmlIndented(): marshal: %w", err)
 	}
@@ -172,22 +179,22 @@ func (S *SVG) FindGroupsById(id any, findFirst bool) ([]*GroupDef, error) {
 }
 
 // AddBackground takes a color definition, such as "#<hex>" or a name like
-// "red", and creates a group containing a rect matching the image size and
-// specified color.
-//
-// The new group is prepended to the top-level G slice to ensure that it is
-// the bottom-most visual element in the image.
-func (S *SVG) AddBackground(colorDef string) {
-	rect := RectDef{
-		Id:     "backgroundColor",
-		X:      "0",
-		Y:      "0",
-		Width:  S.Width,
-		Height: S.Height,
-		Style:  "fill:" + colorDef,
+// "red", and creates a rect matching the image's viewBox or x/y/width/height
+// and with the specified fill color.
+func (S *SVG) AddBackground(colorDef string) error {
+	var bgRect RectDef
+	viewBox, err := S.GetViewBox()
+	if err != nil {
+		return fmt.Errorf("AddBackground(): get viewBox: %w", err)
+	} else if viewBox == (ViewBoxDef{}) {
+		bgRect = NewRect("backgroundColor", "fill:"+colorDef, "0", "0", S.Width, S.Height)
+	} else {
+		bgRect = NewRect("backgroundColor", "fill:"+colorDef, viewBox.X, viewBox.Y, viewBox.Width, viewBox.Height)
 	}
-	g := GroupDef{Rect: []RectDef{rect}}
-	S.G = append([]GroupDef{g}, S.G...)
+	//g := GroupDef{Rect: []RectDef{rect}}
+	//S.G = append([]GroupDef{g}, S.G...)
+	S.background = bgRect
+	return nil
 }
 
 // GetViewBox returns the value of the "viewBox" XML attribute as a

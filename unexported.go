@@ -148,3 +148,13 @@ func anyNumberToString[N string | NumberAttr](num N, floatPrecision int) string 
 	}
 	return ""
 }
+
+func placeBackgroundRect(svg_in *SVG) *SVG {
+	if svg_in.background == (RectDef{}) {
+		return svg_in
+	}
+	newS := *svg_in
+	g := GroupDef{Rect: []RectDef{newS.background}}
+	newS.G = append([]GroupDef{g}, newS.G...)
+	return &newS
+}
