@@ -93,3 +93,33 @@ func TestAnyNumberToString(t *testing.T) {
 		})
 	}
 }
+
+func TestGetViewBox(t *testing.T) {
+	var tests = []struct {
+		name     string
+		svgObj   *SVG
+		expected ViewBoxDef
+	}{
+		{"ints, float height", &SVG{ViewBox: "0 0 100 99.5"}, ViewBoxDef{0.0, 0.0, 100.0, 99.5}},
+		{"ints, float width", &SVG{ViewBox: "0 0 99.5 100"}, ViewBoxDef{0.0, 0.0, 99.5, 100.0}},
+		{"ints, float width, negative X", &SVG{ViewBox: "-10 0 89.5 100"}, ViewBoxDef{-10.0, 0.0, 89.5, 100.0}},
+		{"ints, negative float Y", &SVG{ViewBox: "0 -10.5 99.5 89.5"}, ViewBoxDef{0.0, -10.5, 99.5, 89.5}},
+		{"error: bad Y", &SVG{ViewBox: "0 -10>5 99.5 89.5"}, ViewBoxDef{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := tt.svgObj.GetViewBox()
+			if tt.name[:6] == "error:" {
+				if err == nil {
+					t.Errorf("expected error but got none; result=%+v", result)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("got error: %s", err.Error())
+				} else if result != tt.expected {
+					t.Errorf("got +%v, want +%v", result, tt.expected)
+				}
+			}
+		})
+	}
+}
