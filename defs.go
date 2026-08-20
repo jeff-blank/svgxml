@@ -129,4 +129,5 @@ type NumberAttr interface {
 const (
 	FindFirst = true
 	FindAll   = false
+	bgRectId  = "svgxml_backgroundColor"
 )

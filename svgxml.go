@@ -192,9 +192,9 @@ func (S *SVG) AddBackground(colorDef string) error {
 	if err != nil {
 		return fmt.Errorf("AddBackground(): get viewBox: %w", err)
 	} else if viewBox == (ViewBoxDef{}) {
-		bgRect = NewRect("svgxml_backgroundColor", "fill:"+colorDef, "0", "0", S.Width, S.Height)
+		bgRect = NewRect(bgRectId, "fill:"+colorDef, "0", "0", S.Width, S.Height)
 	} else {
-		bgRect = NewRect("svgxml_backgroundColor", "fill:"+colorDef, viewBox.X, viewBox.Y, viewBox.Width, viewBox.Height)
+		bgRect = NewRect(bgRectId, "fill:"+colorDef, viewBox.X, viewBox.Y, viewBox.Width, viewBox.Height)
 	}
 	S.background = bgRect
 	return nil
