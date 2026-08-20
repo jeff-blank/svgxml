@@ -59,6 +59,8 @@ func traverseObjectById(elem any, elemType string, id any, findFirst bool) ([]an
 		r = reflect.ValueOf(e)
 		if r == (reflect.Value{}) {
 			return results, fmt.Errorf("no reflect.Value for element")
+		} else if r.IsNil() {
+			return nil, nil
 		} else {
 			return results, fmt.Errorf("element is unhandled Kind '%s' and Type '%s'", r.Kind().String(), r.Type().String())
 		}
