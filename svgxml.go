@@ -132,7 +132,7 @@ func (S *SVG) WriteFileIndented(filename, indentPrefix, indentString string) err
 func (S *SVG) FindPathsById(id any, findFirst bool) ([]*PathDef, error) {
 	paths, err := traverseObjectById(S, "PathDef", id, findFirst)
 	if err != nil {
-		err = fmt.Errorf("FindElementsById(): %w", err)
+		err = fmt.Errorf("FindPathsById(): %w", err)
 	}
 	results := make([]*PathDef, len(paths))
 	for i, p := range paths {
