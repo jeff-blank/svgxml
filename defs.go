@@ -19,6 +19,7 @@ type SVG struct {
 	XMLNS      string      `xml:"xmlns,attr"`
 	XMLName    xml.Name    `xml:"svg"`
 	Defs       DefsDef     `xml:"defs"`
+	CSS        []CssDef    `xml:"style,omitempty"`
 	G          []GroupDef  `xml:"g"`
 	A          []AnchorDef `xml:"a"`
 	Path       []PathDef   `xml:"path"`
@@ -31,9 +32,10 @@ type SVG struct {
 // <path> SVG/XML element
 type PathDef struct {
 	Id    string `xml:"id,attr"`
-	D     string `xml:"d,attr"`
+	Class string `xml:"class,attr,omitempty"`
 	Xform string `xml:"transform,attr,omitempty"`
 	Style string `xml:"style,attr,omitempty"`
+	D     string `xml:"d,attr"`
 	Title string `xml:"title,omitempty"`
 }
 
@@ -41,8 +43,10 @@ type PathDef struct {
 type GroupDef struct {
 	G      []GroupDef  `xml:"g,omitempty"`
 	Id     string      `xml:"id,attr,omitempty"`
+	Class  string      `xml:"class,attr,omitempty"`
 	Xform  string      `xml:"transform,attr,omitempty"`
 	Style  string      `xml:"style,attr,omitempty"`
+	Title  string      `xml:"title,omitempty"`
 	A      []AnchorDef `xml:"a"`
 	Path   []PathDef   `xml:"path"`
 	Text   []TextDef   `xml:"text"`
@@ -53,6 +57,7 @@ type GroupDef struct {
 // <a> SVG/XML element
 type AnchorDef struct {
 	Id             string      `xml:"id,attr"`
+	Class          string      `xml:"class,attr,omitempty"`
 	Download       string      `xml:"Download,attr"`
 	Href           string      `xml:"href,attr"`
 	HrefLang       string      `xml:"hreflang,attr"`
@@ -74,6 +79,7 @@ type DefsDef struct {
 // <tspan> SVG/XML element
 type TSpanDef struct {
 	Id    string `xml:"id,attr"`
+	Class string `xml:"class,attr,omitempty"`
 	X     string `xml:"x,attr"`
 	Y     string `xml:"y,attr"`
 	Xform string `xml:"transform,attr,omitempty"`
@@ -83,6 +89,7 @@ type TSpanDef struct {
 // <text> SVG/XML element
 type TextDef struct {
 	Id         string     `xml:"id,attr"`
+	Class      string     `xml:"class,attr,omitempty"`
 	X          string     `xml:"x,attr"`
 	Y          string     `xml:"y,attr"`
 	Style      string     `xml:"style,attr,omitempty"`
@@ -95,6 +102,7 @@ type TextDef struct {
 // <rect> SVG/XML element
 type RectDef struct {
 	Id     string `xml:"id,attr"`
+	Class  string `xml:"class,attr,omitempty"`
 	X      string `xml:"x,attr"`
 	Y      string `xml:"y,attr"`
 	Width  string `xml:"width,attr"`
@@ -106,6 +114,7 @@ type RectDef struct {
 // <circle> SVG/XML element
 type CircleDef struct {
 	Id     string `xml:"id,attr"`
+	Class  string `xml:"class,attr,omitempty"`
 	CX     string `xml:"cx,attr"`
 	CY     string `xml:"cy,attr"`
 	Radius string `xml:"r,attr"`
@@ -119,6 +128,11 @@ type ViewBoxDef struct {
 	Y      float64
 	Width  float64
 	Height float64
+}
+
+type CssDef struct {
+	Type      string `xml:"type,attr,omitempty"`
+	CssString string `xml:",innerxml"`
 }
 
 // Type constraint for functions
